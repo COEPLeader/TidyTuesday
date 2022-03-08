@@ -1,0 +1,89 @@
+---
+title: 'Tidy Tuesday #3'
+author: "Put your name here"
+output: 
+  html_document:
+    df_print: paged
+    code_download: true
+    theme: cerulean
+---
+
+```{r setup, include=FALSE}
+#knitr::opts_chunk$set(echo = TRUE, error=TRUE, message=FALSE, warning=FALSE)
+```
+
+```{r libraries}
+library(tidyverse)     # for graphing and data cleaning
+library(lubridate)     # for date manipulation
+library(ggthemes)      # for even more plotting themes
+library(maps)          
+library(ggmap)         
+library(ggthemes)
+theme_set(theme_minimal()) # My favorite ggplot() theme :)
+
+d```
+
+## Data choice 1: Freedom Data
+
+```{r}
+# Read in the data
+
+  freedom <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-02-22/freedom.csv')
+
+# If the code above gives an error, uncomment the code below and use it instead. 
+# You will need to install the tidytuesdayR package first.
+
+# library(tidytuesdayR)
+# 
+# tuesdata <- tidytuesdayR::tt_load('2022-02-22')
+# tuesdata <- tidytuesdayR::tt_load(2022, week = 8)
+# 
+# freedom <- tuesdata$freedom
+```
+
+This week's data is about civil freedoms around the world. Read more about it, including definitions of variables, [here](https://github.com/rfordatascience/tidytuesday/blob/master/data/2022/2022-02-22/readme.md). 
+```{r}
+# freedom %>% 
+#   group_by(country) %>% 
+#   summarize(CL_avg = mean(CL))
+
+# world_map %>% 
+#   group_by(region) %>% 
+#   summarize(country = region) %>% 
+#   distinct()
+
+anti_join(freedom, world_map, by = c("country" = "region") ) %>% 
+  group_by(country) %>% 
+  summarize(CL_avg = mean(CL)) %>% 
+  distinct()
+
+anti_join(world_map, freedom, by = c("region" = "country") ) %>% 
+  group_by(region) %>%
+  summarize(region) %>% 
+  distinct()
+```
+
+```{r}
+world_map <- map_data("world")
+    
+  
+freedom %>% 
+  mutate(country2 = ifelse(country == "United States of America", "USA", ifelse(country == "Russian Federation","Russia",ifelse(country == "Bolivia (Plurinational State of)","Bolivia",ifelse(country == "Democratic People's Republic of Korea","North Korea",ifelse(country == "Republic of Korea","South Korea",ifelse(country == "Lao People's Democratic Republic","Laos",ifelse(country == "Syrian Arab Republic","Syria",ifelse(country == "United Kingdom of Great Britain and Northern Ireland","UK",ifelse(country == "Iran (Islamic Republic of)","Iran",ifelse(country == "United Republic of Tanzania","Tanzania",ifelse(country == "Congo","Republic of Congo",ifelse(country == "Viet Nam","Vietnam",country))))))))))))) %>% 
+  group_by(country2) %>% 
+  summarize(CL_diff = CL[which.max(year)] - CL[which.min(year)]) %>% 
+  ggplot() +
+    geom_map(map = world_map,
+             aes(map_id = country2,
+                 fill = -(CL_diff))) +
+  scale_fill_viridis_c() +
+  expand_limits(x = world_map$long, y = world_map$lat) + 
+  theme_map() +
+  theme(legend.background = element_blank())
+```
+
+## Instructions and tips
+
+ake a minute to plan out on paper or the white board what you want your plot to look like and then dive into the code. And make sure to read about what the variables are first! 
+
+When you are finished, please delete all the unneeded code and instructions and uncomment (delete the `#`) in the options section of code at the top. If you feel up for it, we encourage you to tweet out your graph with the `#TidyTuesday` hashtag and tag `@lisalendway` (Prof. Lisa) and `@Sintripetal` (Prof. Lauren). See the Tidy Tuesday description file if you want to use our `@MacTidyTuesday` Twitter account to do that. PLEASE take a moment to read the message at the top about alt text. If you want to post on Twitter, be sure to add that. If you need help, ask. Also, consider adding a caption or tag label with your name and source of the dataset. You can do this by adding something like: `labs(caption = "Plot created by YOURNAME, data from DATASOURCE")` to your plot code.
+
