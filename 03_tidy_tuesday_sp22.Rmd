@@ -1,6 +1,6 @@
 ---
 title: 'Tidy Tuesday #3'
-author: "Put your name here"
+author: "Seth Buesing"
 output: 
   html_document:
     df_print: paged
