@@ -44,28 +44,31 @@ The first choice for this week's data is about Tuskegee Airmen. Read more about 
 
 I thought I would figure out where the highest ranking of the Tuskeege Airmen came from.
 
+
+
 ```{r}
   airmen_rank <- airmen %>%
     drop_na(rank_at_graduation) %>% 
       filter(rank_at_graduation != "N/A", rank_at_graduation != "Unk") %>% 
         group_by(state, rank_at_graduation) %>% 
-          mutate(rank_total = n())
+          mutate(rank_total = n()) 
 ```
 
 In the above code I sort out the airmen data as to find out how many soldiers reached each rank.
 
-```{r, fig.width = 20, fig.height = 8, fig.alt = "Graph showing distribution of soldiers' ranks organized by their home states"}
+```{r, fig.width = 18, fig.height = 10, fig.alt = "Graph showing distribution of soldiers' ranks organized by their home states"}
   airmen_rank %>%  
       ggplot(aes(x = state, y = rank_at_graduation)) +
       geom_tile(aes(fill = rank_total)) +
       scale_fill_gradientn(colors = c("darkblue", "blue", "green", "red")) +
-      labs(title = "Rank distribution of Tuskegee Airmen by home state",
+        labs(title = "Rank distribution of Tuskegee Airmen by home state",
            x = "State",
            y = "",
            caption = "Number of soldiers to achieve a given rank are given by the color of tiles.",
            fill = "") +
-           theme(plot.caption = element_text(size = 15))
+        scale_y_discrete(limits = c("Flight Officer","2nd Lt","1st Lt", "Captain")) +
+           theme(plot.title = element_text(size = 20), legend.text = element_text(size = 15), axis.title.x = element_text(size = 15), axis.text.x = element_text(size = 12), axis.text.y = element_text(size = 15), plot.caption = element_text(size = 15))
 
 ```
-It is interesting to note that while the Tuskegee institute was located in Alabama, there doesn't seem to be an extraordinary representation from the state- We also see a large number of 2nd Leiutenants from Illinios, even more so than NY or California. It does appear to be a relatively uniform spread among the states other than these few standout exceptions.
+It is interesting to note that while the Tuskegee institute was located in Alabama, there doesn't seem to be an extraordinary representation from the state- We also see a large number of 2nd Leiutenants from Illinios, even more so than NY or California. It does appear to be a relatively uniform spread among the states other than these few standout exceptions. There was one entry labeled Capt that I couldn't figure out how to change to Captain. I also wanted to change the NA/Unknown values in the states column with Other but I wasn't able to do so, even after looking up how to use a few different replace functions.
 
