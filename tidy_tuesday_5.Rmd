@@ -1,0 +1,43 @@
+---
+title: 'Tidy Tuesday 5'
+author: "Seth Buesing"
+output: 
+  html_document:
+    df_print: paged
+    code_download: true
+    theme: cerulean
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, error=TRUE, message=FALSE, warning=FALSE)
+```
+
+```{r libraries}
+library(readr)
+library(tidyverse)
+library(ggmap)
+library(maps)
+library(lubridate)
+library(leaflet)
+```
+
+```{r cache = TRUE}
+  accidents_data <- read.csv("US_Accidents_Dec21_updated.csv") 
+```
+
+```{r}
+  US_map <- get_stamenmap(
+    bbox = c(left = -130.01, bottom = 23.98, right = -64.97, top = 51.88), 
+    maptype = "terrain",
+    zoom = 5)
+  
+  accidents_data_2021  <- accidents_data %>% 
+    mutate(size = sqrt((Start_Lng - End_Lng)^2+(Start_Lat - End_Lat)^2)) %>% 
+    filter(year(Start_Time) == 2021)
+  
+  leaflet(data = accidents_data_2021) %>% 
+  addTiles() %>% 
+    addCircles(lng = ~Start_Lng,
+               lat = ~Start_Lat,
+                radius = ~size)
+```
